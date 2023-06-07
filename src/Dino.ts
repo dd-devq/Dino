@@ -1,12 +1,29 @@
 import { Position } from "./Position";
-import { Sprite } from "./Sprite";
+import { Sprite, checkCollision } from "./Sprite";
+
+enum DINO_STATE {
+    IDLE = 0,
+    RUNNING = 1,
+    JUMPING = 2,
+    FALLING = 3,
+    CROUCHING = 4,
+    DEAD = 5
+}
 
 class Dino implements IRenderable {
     public position: Position;
     private nowPlayingAnimation: string;
     private animations: Map<string, Sprite[]>;
+    public nowRenderingSprite: Sprite;
+    private animationStep: number = 3;
+    private frameIndex: number;
+    private speed: number = 0.75;
+    private dinoState: DINO_STATE;
+    private maxJumpHeight = 50;
 
     constructor(position: Position = new Position(0, 0)) {
+        this.frameIndex = 0;
+        this.dinoState = DINO_STATE.IDLE
         this.position = position;
         this.animations = new Map<string, Sprite[]>();
         this.setRenderResource();
@@ -57,21 +74,68 @@ class Dino implements IRenderable {
         this.animations.set('Crouch', crouchAnimation)
 
 
-        this.nowPlayingAnimation = 'Idle'
+        this.nowPlayingAnimation = 'Run'
+        this.nowRenderingSprite = runKeyFrame1
     }
 
 
-    public getRenderResource(): RenderResource[] {
-        console.log(this.nowPlayingAnimation)
+    public getRenderResource(): IRenderResource[] {
         return this.animations.get(this.nowPlayingAnimation)!;
     }
 
     render(canvasContext: CanvasRenderingContext2D): void {
-
+        canvasContext.drawImage(this.nowRenderingSprite.image, this.position.x, this.position.y)
     }
 
     public update(timeScale: number, deltaTime: number): void {
+        let renderResources: IRenderResource[] = this.getRenderResource()
+        this.frameIndex += 1
+        let tempIndex = Math.floor(this.frameIndex / this.animationStep) % (this.animationStep * renderResources.length);
+        if (renderResources[tempIndex % renderResources.length].image != this.nowRenderingSprite.image) {
+            this.nowRenderingSprite = renderResources[tempIndex % renderResources.length]
+        }
+        switch (this.dinoState) {
+            case DINO_STATE.JUMPING: {
+                this.position.y -= timeScale * deltaTime * this.speed * 5
 
+                if (this.position.y <= this.maxJumpHeight) {
+                    this.dinoState = DINO_STATE.FALLING
+                }
+            }
+            case DINO_STATE.FALLING: {
+                this.position.y += timeScale * deltaTime * this.speed * 2.5
+                if (this.position.y >= 145) {
+                    this.position.y = 145
+                    this.dinoState = DINO_STATE.RUNNING
+                    this.setAnimation("Run")
+                }
+            }
+        }
+    }
+
+    public setAnimation(animation: string) {
+        if (animation == "Crouch") {
+            this.position.y = 145
+            this.position.y += 20;
+            this.dinoState = DINO_STATE.CROUCHING
+            this.nowPlayingAnimation = animation;
+        }
+
+        if (animation == "Jump" && this.dinoState != DINO_STATE.CROUCHING && this.dinoState != DINO_STATE.FALLING) {
+            this.dinoState = DINO_STATE.JUMPING
+            this.nowPlayingAnimation = animation;
+        }
+
+        if (animation == "Run") {
+            this.dinoState = DINO_STATE.RUNNING
+            this.position.y = 145
+            this.nowPlayingAnimation = animation;
+        }
+
+        if (animation == "Dead") {
+            this.dinoState = DINO_STATE.DEAD
+            this.nowPlayingAnimation = animation;
+        }
     }
 }
 

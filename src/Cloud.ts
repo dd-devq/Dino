@@ -2,7 +2,7 @@ import { Position } from "./Position";
 import { Sprite } from "./Sprite";
 
 
-class Ground implements IRenderable {
+class Cloud implements IRenderable {
     public position: Position;
     public nowRenderingSprite: Sprite;
     public speed: number;
@@ -11,14 +11,14 @@ class Ground implements IRenderable {
         if (!position) {
             position = new Position(0, 0)
         }
-        this.speed = 0.5;
+        this.speed = 0.25;
         this.position = position;
         this.setRenderResource();
     }
 
     public setRenderResource(): void {
-        let ground_img_src: string = "assets\\Environment\\ground.png";
-        this.nowRenderingSprite = new Sprite(ground_img_src);
+        let cloud_img_src: string = "assets\\Environment\\cloud.png";
+        this.nowRenderingSprite = new Sprite(cloud_img_src);
     }
 
     public getRenderResource(): IRenderResource[] {
@@ -27,21 +27,16 @@ class Ground implements IRenderable {
 
     public render(canvasContext: CanvasRenderingContext2D): void {
         canvasContext.drawImage(this.nowRenderingSprite.image, this.position.x, this.position.y);
-        canvasContext.drawImage(this.nowRenderingSprite.image, this.position.x + this.nowRenderingSprite.image.width, this.position.y);
+        canvasContext.drawImage(this.nowRenderingSprite.image, this.position.x + 7 * this.nowRenderingSprite.image.width, this.position.y + 30);
+        canvasContext.drawImage(this.nowRenderingSprite.image, this.position.x + 3 * this.nowRenderingSprite.image.width, this.position.y + 50);
     }
 
     public update(timeScale: number, deltaTime: number): void {
         this.position.x -= timeScale * deltaTime * this.speed
-        if (this.speed < 2) {
-            this.speed += 0.001
-        }
-        else {
-            this.speed = 2.5
-        }
         if (this.position.x < -this.nowRenderingSprite.image.width) {
-            this.position.x = 0
+            this.position.x = 800
         }
     }
 }
 
-export { Ground };
+export { Cloud };
