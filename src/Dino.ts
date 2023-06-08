@@ -15,11 +15,12 @@ class Dino implements IRenderable {
     private nowPlayingAnimation: string;
     private animations: Map<string, Sprite[]>;
     public nowRenderingSprite: Sprite;
-    private animationStep: number = 60;
+    private animationStep: number = 6;
     private frameIndex: number;
     private speed: number = 1.15;
-    private dinoState: DINO_STATE;
+    public dinoState: DINO_STATE;
     private maxJumpHeight = 20;
+    public gravity:number = 2;
 
     constructor(position: Position = new Position(0, 0)) {
         this.frameIndex = 0;
@@ -97,16 +98,17 @@ class Dino implements IRenderable {
 
         switch (this.dinoState) {
             case DINO_STATE.JUMPING: {
-                this.position.y -= timeScale * deltaTime * this.speed * 1.5
+                this.position.y -= timeScale * Math.sqrt(deltaTime) *this.speed * 5
 
                 if (this.position.y <= this.maxJumpHeight) {
                     this.dinoState = DINO_STATE.FALLING
                 }
             }
             case DINO_STATE.FALLING: {
-                this.position.y += timeScale * deltaTime * this.speed * 0.75
-
-                if (this.position.y >= 145) {
+                this.position.y += timeScale * Math.sqrt(deltaTime) * this.speed * this.gravity
+                
+                if (this.position.y >= 145 ) {
+                    this.gravity = 2
                     this.position.y = 145
                     this.dinoState = DINO_STATE.RUNNING
                     this.setAnimation("Run")
@@ -121,6 +123,7 @@ class Dino implements IRenderable {
             this.position.y += 20;
             this.dinoState = DINO_STATE.CROUCHING
             this.nowPlayingAnimation = animation;
+            console.log(" asdasdasd")
         }
 
         if (animation == "Jump" && this.dinoState != DINO_STATE.CROUCHING && this.dinoState != DINO_STATE.FALLING) {

@@ -6,7 +6,14 @@ enum GAME_STATE {
     PAUSE = 2,
     ENDGAME = 3,
 }
-
+enum DINO_STATE {
+    IDLE = 0,
+    RUNNING = 1,
+    JUMPING = 2,
+    FALLING = 3,
+    CROUCHING = 4,
+    DEAD = 5
+}
 /*Global variable*/
 
 let keysPressed: Set<string> = new Set();
@@ -67,7 +74,12 @@ function handleKeyDown(event: KeyboardEvent): void {
         }
 
         else if (gameCore.getGameState() == GAME_STATE.PLAYING && key === "ArrowDown") {
-            gameCore.dino.setAnimation("Crouch");
+            if(gameCore.dino.dinoState != DINO_STATE.FALLING && gameCore.dino.dinoState != DINO_STATE.JUMPING) {
+                gameCore.dino.setAnimation("Crouch");
+            }
+            else {
+                gameCore.dino.gravity = 4;
+            }
         }
 
         else if (gameCore.getGameState() == GAME_STATE.ENDGAME && (key === " ")) {
@@ -78,6 +90,9 @@ function handleKeyDown(event: KeyboardEvent): void {
     if (keysHeld.has(key)) {
         if (gameCore.getGameState() == GAME_STATE.PLAYING && (key === " " || key === "ArrowUp")) {
             gameCore.dino.setAnimation("Jump");
+        }
+        if (gameCore.getGameState() == GAME_STATE.PLAYING && key === "ArrowDown" && gameCore.dino.dinoState == DINO_STATE.RUNNING) {
+            gameCore.dino.setAnimation("Crouch");
         }
     }
 }
@@ -91,4 +106,10 @@ function handleKeyUp(event: KeyboardEvent): void {
     if (gameCore.getGameState() == GAME_STATE.PLAYING && key === "ArrowDown") {
         gameCore.dino.setAnimation("Run");
     }
+
+    if(gameCore.getGameState() == GAME_STATE.PLAYING && gameCore.dino.dinoState == DINO_STATE.JUMPING &&
+        (key === "ArrowUp" || key === " ")) {
+        gameCore.dino.dinoState = DINO_STATE.FALLING
+    }
+
 }
