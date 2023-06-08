@@ -5,9 +5,9 @@ class Bird implements IRenderable {
     public position: Position;
     private bird: Sprite[];
     public nowRenderingSprite: Sprite;
-    private animationStep: number = 6;
+    private animationStep: number = 60;
     private frameIndex: number;
-    private speed: number = 0.5;
+    private speed: number = 0.25;
 
 
     constructor(position: Position) {
@@ -34,31 +34,39 @@ class Bird implements IRenderable {
         return this.bird;
     }
 
-    render(canvasContext: CanvasRenderingContext2D): void {
+    public render(canvasContext: CanvasRenderingContext2D): void {
         canvasContext.drawImage(this.nowRenderingSprite.image, this.position.x, this.position.y)
     }
 
     public update(timeScale: number, deltaTime: number): void {
-        let renderResources: IRenderResource[] = this.getRenderResource()
-        this.frameIndex += 1
-        let tempIndex = Math.floor(this.frameIndex / this.animationStep) % (this.animationStep * renderResources.length);
+        if (timeScale != 0) {
 
-        if (renderResources[tempIndex % renderResources.length].image != this.nowRenderingSprite.image) {
-            this.nowRenderingSprite = renderResources[tempIndex % renderResources.length]
-        }
-        this.position.x -= timeScale * deltaTime * this.speed
-        if (this.speed < 2) {
-            this.speed += 0.0015
-        }
-        else {
-            this.speed = 2.75
-        }
+            let renderResources: IRenderResource[] = this.getRenderResource()
+            this.frameIndex += 1
+            let tempIndex = Math.floor(this.frameIndex / this.animationStep) % (this.animationStep * renderResources.length);
 
-        if (this.position.x < -100) {
-            this.position.x = 800;
-            this.position.y = getRandomNumberInRange(75, 125)
-        }
+            if (renderResources[tempIndex % renderResources.length].image != this.nowRenderingSprite.image) {
+                this.nowRenderingSprite = renderResources[tempIndex % renderResources.length]
+            }
+            this.position.x -= timeScale * deltaTime * this.speed
+            if (this.speed < 2) {
+                this.speed += 0.00015
+            }
+            else {
+                this.speed = 2
+            }
 
+            if (this.position.x < -100) {
+                this.position.x = 800;
+                this.position.y = getRandomNumberInRange(70, 125)
+            }
+        }
+    }
+
+    public reset(): void {
+        this.speed = 0.25
+        this.position.x = 1200;
+        this.position.y = getRandomNumberInRange(70, 125)
     }
 }
 

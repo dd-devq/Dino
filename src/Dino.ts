@@ -15,11 +15,11 @@ class Dino implements IRenderable {
     private nowPlayingAnimation: string;
     private animations: Map<string, Sprite[]>;
     public nowRenderingSprite: Sprite;
-    private animationStep: number = 3;
+    private animationStep: number = 60;
     private frameIndex: number;
-    private speed: number = 0.75;
+    private speed: number = 1.15;
     private dinoState: DINO_STATE;
-    private maxJumpHeight = 50;
+    private maxJumpHeight = 20;
 
     constructor(position: Position = new Position(0, 0)) {
         this.frameIndex = 0;
@@ -74,8 +74,8 @@ class Dino implements IRenderable {
         this.animations.set('Crouch', crouchAnimation)
 
 
-        this.nowPlayingAnimation = 'Run'
-        this.nowRenderingSprite = runKeyFrame1
+        this.nowPlayingAnimation = 'Idle'
+        this.nowRenderingSprite = idleKeyFrame
     }
 
 
@@ -83,7 +83,7 @@ class Dino implements IRenderable {
         return this.animations.get(this.nowPlayingAnimation)!;
     }
 
-    render(canvasContext: CanvasRenderingContext2D): void {
+    public render(canvasContext: CanvasRenderingContext2D): void {
         canvasContext.drawImage(this.nowRenderingSprite.image, this.position.x, this.position.y)
     }
 
@@ -94,16 +94,18 @@ class Dino implements IRenderable {
         if (renderResources[tempIndex % renderResources.length].image != this.nowRenderingSprite.image) {
             this.nowRenderingSprite = renderResources[tempIndex % renderResources.length]
         }
+
         switch (this.dinoState) {
             case DINO_STATE.JUMPING: {
-                this.position.y -= timeScale * deltaTime * this.speed * 5
+                this.position.y -= timeScale * deltaTime * this.speed * 1.5
 
                 if (this.position.y <= this.maxJumpHeight) {
                     this.dinoState = DINO_STATE.FALLING
                 }
             }
             case DINO_STATE.FALLING: {
-                this.position.y += timeScale * deltaTime * this.speed * 2.5
+                this.position.y += timeScale * deltaTime * this.speed * 0.75
+
                 if (this.position.y >= 145) {
                     this.position.y = 145
                     this.dinoState = DINO_STATE.RUNNING
@@ -113,7 +115,7 @@ class Dino implements IRenderable {
         }
     }
 
-    public setAnimation(animation: string) {
+    public setAnimation(animation: string): void {
         if (animation == "Crouch") {
             this.position.y = 145
             this.position.y += 20;
@@ -127,8 +129,8 @@ class Dino implements IRenderable {
         }
 
         if (animation == "Run") {
-            this.dinoState = DINO_STATE.RUNNING
             this.position.y = 145
+            this.dinoState = DINO_STATE.RUNNING
             this.nowPlayingAnimation = animation;
         }
 
@@ -136,7 +138,21 @@ class Dino implements IRenderable {
             this.dinoState = DINO_STATE.DEAD
             this.nowPlayingAnimation = animation;
         }
+
+        if (animation == "Idle") {
+            this.nowPlayingAnimation = animation;
+            this.nowRenderingSprite = this.getRenderResource()[0]
+        }
     }
+
+    public reset(): void {
+        this.dinoState = DINO_STATE.IDLE
+        this.frameIndex = 0;
+        this.setAnimation("Idle")
+        this.position.x = 10
+        this.position.y = 145
+    }
+
 }
 
 export { Dino };

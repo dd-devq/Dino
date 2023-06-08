@@ -4,8 +4,8 @@ import { Sprite } from "./Sprite";
 class Cactus implements IRenderable {
     public position: Position;
     public nowRenderingSprite: Sprite;
-    public speed: number;
-    private DEFAULT_GROUND: number = 145;
+    private speed: number;
+    private DEFAULT_GROUND: number;
     private cacheCactus: Map<number, Sprite>;
     private cacheSmallCactus: Map<number, Sprite>;
 
@@ -14,11 +14,14 @@ class Cactus implements IRenderable {
         if (!position) {
             position = new Position(0, 0)
         }
+
         this.cacheCactus = new Map<number, Sprite>();
         this.cacheSmallCactus = new Map<number, Sprite>();
 
-        this.speed = 0.5;
+        this.speed = 0.25;
         this.position = position;
+        this.DEFAULT_GROUND = 145;
+
         this.cacheRenderResource();
         this.setRenderResource();
     }
@@ -41,8 +44,10 @@ class Cactus implements IRenderable {
 
     public setRenderResource(): void {
         this.position.y = this.DEFAULT_GROUND;
+
         let index: number = Math.floor(Math.random() * 5) + 1;
         let isSmall: number = Math.floor(Math.random() * 2);
+
         if (isSmall == 0) {
             this.nowRenderingSprite = this.cacheCactus.get(index)!
         }
@@ -64,16 +69,23 @@ class Cactus implements IRenderable {
     public update(timeScale: number, deltaTime: number): void {
         this.position.x -= timeScale * deltaTime * this.speed
         if (this.speed < 2) {
-            this.speed += 0.001
+            this.speed += 0.0001
         }
         else {
-            this.speed = 2.5
+            this.speed = 2;
         }
         if (this.position.x < -this.nowRenderingSprite.image.width) {
-            this.position.x = 800
-            this.setRenderResource()
+            this.position.x = 800;
+            this.setRenderResource();
         }
     }
+
+    public reset(): void {
+        this.speed = 0.25
+        this.position.x = 800;
+        this.setRenderResource();
+    }
+
 }
 
 export { Cactus };

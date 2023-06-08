@@ -37,6 +37,11 @@ class Cloud implements IRenderable {
             this.position.x = 800
         }
     }
+
+    public reset(): void {
+
+    }
+
 }
 
 export { Cloud };

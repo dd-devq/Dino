@@ -11,7 +11,8 @@ class Ground implements IRenderable {
         if (!position) {
             position = new Position(0, 0)
         }
-        this.speed = 0.5;
+
+        this.speed = 0.25;
         this.position = position;
         this.setRenderResource();
     }
@@ -32,15 +33,22 @@ class Ground implements IRenderable {
 
     public update(timeScale: number, deltaTime: number): void {
         this.position.x -= timeScale * deltaTime * this.speed
+
         if (this.speed < 2) {
-            this.speed += 0.001
+            this.speed += 0.0001
         }
         else {
-            this.speed = 2.5
+            this.speed = 2
         }
+
         if (this.position.x < -this.nowRenderingSprite.image.width) {
             this.position.x = 0
         }
+    }
+
+    public reset(): void {
+        this.speed = 0.25
+        this.position.x = 0
     }
 }
 

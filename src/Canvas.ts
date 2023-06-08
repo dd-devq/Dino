@@ -37,11 +37,6 @@ class Canvas {
         this.canvas.width = width;
         game?.appendChild(this.canvas);
     }
-
-    render(canvasContext: CanvasRenderingContext2D): void {
-
-    }
-
 }
 
 export { Canvas };
